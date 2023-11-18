@@ -3,6 +3,9 @@ import {InjectToken} from '../decorator/token.decorator';
 import {Get, Post} from '../decorator/endpoint.decorator';
 import {Injector} from '../core/injector';
 import {TestInjectable} from './example.injectable';
+import {Request} from '../decorator/request.decorator';
+import {Response} from '../decorator/response.decorator';
+import http from 'http';
 
 @Controller('api')
 export class TestController {
@@ -11,13 +14,13 @@ export class TestController {
   }
 
   @Get('test')
-  async test() {
+  async test(@Request() _req: http.IncomingMessage, @Response() _res: any) {
     console.log('Hi from controller!', this.token, this.ti.test);
     const res = Injector.getResponse();
     const req = Injector.getRequest();
     const body: any = Injector.getBody();
 
-    return body;
+    return 'TEST';
   }
 
   @Post('test2')

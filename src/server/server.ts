@@ -19,7 +19,22 @@ export class Server {
             Injector.registerToken('request', req);
             Injector.registerToken('response', res);
             Injector.registerToken('body', await this.getBody(req));
-            const result = await routes[index].callback(req, res);
+            // console.log(routes[index].controller.prototype[routes[index].fnName], );
+            const tokenArgs: {index: number; token: string;}[] = Reflect.getMetadata('tokenArgs',routes[index].controller.prototype,routes[index].fnName)
+            const dependencies = Reflect.getMetadata("design:paramtypes", routes[index].controller.prototype,routes[index].fnName) || [];
+            const instances = dependencies.map((dep: (new (...args: unknown[])=> unknown) | string, idx: number) => {
+              const token = tokenArgs.find(t => t.index === idx);
+              if(token) {
+                if(token.token === 'request')
+                  return Injector.getRequest();
+                if(token.token === 'response')
+                  return Injector.getResponse();
+
+                return Injector.get(token.token)
+              }
+              return Injector.get(dep)
+            });
+            const result = await routes[index].callback(...instances);
             res.writeHead(200, {'Content-Type': typeof res === 'object' ? 'application/json': 'text/plain'});
             res.write(result);
             res.end();
@@ -57,7 +72,7 @@ export class Server {
       const endpointPath: string = Reflect.getMetadata('path', controller.prototype, propertyKey);
       console.log('Registering ',propertyKey,endpointType,mainPath,endpointPath);
       if(endpointType === 'get') {
-        addGetEndpoint(`/${mainPath}/${endpointPath}`,controller.prototype[propertyKey].bind(controllerInstance));
+        addGetEndpoint(controller,propertyKey,`/${mainPath}/${endpointPath}`,controller.prototype[propertyKey].bind(controllerInstance));
       } else {
         addPostEndpoint(`/${mainPath}/${endpointPath}`,controller.prototype[propertyKey].bind(controllerInstance));
       }

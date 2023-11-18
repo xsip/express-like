@@ -13,6 +13,11 @@ export class Injector {
     const instances = dependencies.map((dep: (new (...args: unknown[])=> unknown) | string, idx: number) => {
       const token = tokenArgs.find(t => t.index === idx);
       if(token) {
+        if(token.token === 'request')
+          return Injector.getRequest();
+        if(token.token === 'response')
+          return Injector.getRequest();
+
         return Injector.get(token.token)
       }
       return Injector.get(dep)

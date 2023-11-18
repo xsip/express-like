@@ -5,16 +5,20 @@ interface Route {
   route: string;
   method: 'GET' | 'POST' | 'PUT' | 'DELETE';
   callback: RequestCallback;
+  controller?: any;
+  fnName?: any;
 }
 
 export const routes: Route[] = []
 
 
-export const addGetEndpoint = (route: string, callback: RequestCallback) => {
+export const addGetEndpoint = (controller: any, fnName: any,route: string, callback: RequestCallback) => {
   routes.push({
     route,
     method: 'GET',
-    callback
+    callback,
+    controller,
+    fnName
   })
 }
 export const addPostEndpoint = (route: string, callback: RequestCallback) => {
