@@ -6,6 +6,7 @@ import {TestInjectable} from './example.injectable';
 import {Request} from '../decorator/request.decorator';
 import {Response} from '../decorator/response.decorator';
 import http from 'http';
+import {RequireBody} from '../decorator/require-body.decorator';
 
 @Controller('api')
 export class TestController {
@@ -13,6 +14,8 @@ export class TestController {
 
   }
 
+
+  @RequireBody()
   @Get('test')
   async test(@Request() _req: http.IncomingMessage, @Response() _res: any) {
     console.log('Hi from controller!', this.token, this.ti.test);
